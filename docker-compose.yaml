@@ -1,0 +1,22 @@
+version: '3.7'
+
+services:
+  producer:
+    build: producer
+    volumes:
+      - ./producer:/producer
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+
+  consumer-node:
+    build: consumer-node
+    volumes:
+      - ./consumer-node:/consumer-node
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+    depends_on:
+      - producer
