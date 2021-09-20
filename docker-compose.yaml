@@ -35,7 +35,10 @@ services:
       - ./consumer-node:/consumer-node
     ports:
       - "3001:3001"
+    command: sh -c '/bin/wait-for-it.sh rabbitmq:5672 --timeout=60 -- npm start'
     environment:
       - PORT=3001
+      - RABBIT_HOST=rabbitmq
+      - QUEUE_NAME=kotki
     depends_on:
       - producer

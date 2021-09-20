@@ -23,7 +23,7 @@ async function main() {
     })
 
     app.listen(PORT, () => {
-        console.log(`App started on port ${PORT}`)
+        console.log(`App producer started on port ${PORT}`)
     })
 }
 
