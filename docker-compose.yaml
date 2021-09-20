@@ -1,14 +1,32 @@
 version: '3.7'
 
 services:
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - .docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - .docker-conf/rabbitmq/log/:/var/log/rabbitmq
+
   producer:
     build: producer
+    restart: always
     volumes:
       - ./producer:/producer
     ports:
       - "3000:3000"
+    command: sh -c '/bin/wait-for-it.sh rabbitmq:5672 --timeout=60 -- npm start'
     environment:
       - PORT=3000
+      - RABBIT_HOST=rabbitmq
+    depends_on:
+      - rabbitmq
+    links:
+      - rabbitmq
 
   consumer-node:
     build: consumer-node
