@@ -42,3 +42,16 @@ services:
       - QUEUE_NAME=kotki
     depends_on:
       - producer
+
+  consumer-python:
+    build: consumer-python
+    volumes:
+      - ./consumer-python:/consumer-python
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - RABBIT_HOST=rabbitmq
+      - QUEUE_NAME=kotki
+    depends_on:
+      - producer
