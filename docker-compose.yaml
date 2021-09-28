@@ -2,9 +2,9 @@ version: '3.7'
 
 services:
 
-  rabbitmq:
+  rabbitmq-server:
     image: rabbitmq:3-management-alpine
-    container_name: 'rabbitmq'
+    container_name: 'rabbitmq-server'
     ports:
       - 5672:5672
       - 15672:15672
@@ -19,15 +19,15 @@ services:
       - ./producer:/producer
     ports:
       - "3000:3000"
-    command: sh -c '/bin/wait-for-it.sh rabbitmq:5672 --timeout=60 -- npm start'
+    command: sh -c '/bin/wait-for-it.sh rabbitmq-server:5672 --timeout=60 -- npm start'
     environment:
       - PORT=3000
-      - RABBIT_HOST=rabbitmq
+      - RABBIT_HOST=rabbitmq-server
       - QUEUE_NAME=kotki
     depends_on:
-      - rabbitmq
+      - rabbitmq-server
     links:
-      - rabbitmq
+      - rabbitmq-server
 
   consumer-node:
     build: consumer-node
@@ -35,23 +35,25 @@ services:
       - ./consumer-node:/consumer-node
     ports:
       - "3001:3001"
-    command: sh -c '/bin/wait-for-it.sh rabbitmq:5672 --timeout=60 -- npm start'
+    command: sh -c '/bin/wait-for-it.sh rabbitmq-server:5672 --timeout=60 -- npm start'
     environment:
       - PORT=3001
-      - RABBIT_HOST=rabbitmq
+      - RABBIT_HOST=rabbitmq-server
       - QUEUE_NAME=kotki
     depends_on:
       - producer
 
   consumer-python:
     build: consumer-python
+    container_name: python_app
+    command: sh -c '/bin/wait-for-it.sh rabbitmq-server:5672 --timeout=60 -- python3 -u src/app.py'
     volumes:
       - ./consumer-python:/consumer-python
     ports:
       - "3002:3002"
     environment:
       - PORT=3002
-      - RABBIT_HOST=rabbitmq
+      - RABBIT_HOST=rabbitmq-server
       - QUEUE_NAME=kotki
     depends_on:
-      - producer
+      - rabbitmq-server
